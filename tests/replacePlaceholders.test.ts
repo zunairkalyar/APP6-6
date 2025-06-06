@@ -1,5 +1,4 @@
-import test from 'node:test';
-import assert from 'node:assert/strict';
+import { describe, it, expect } from 'vitest';
 import { replacePlaceholders } from '../lib/utils.ts';
 import { OrderStatus } from '../types.ts';
 
@@ -19,8 +18,10 @@ const mockOrder = {
   platform: 'shopify'
 };
 
-test('replacePlaceholders substitutes values', () => {
-  const template = 'Hi {{customerName}}, your order {{orderNumber}} is ready.';
-  const result = replacePlaceholders(template, mockOrder);
-  assert.equal(result, 'Hi John Doe, your order #1001 is ready.');
+describe('replacePlaceholders', () => {
+  it('substitutes values', () => {
+    const template = 'Hi {{customerName}}, your order {{orderNumber}} is ready.';
+    const result = replacePlaceholders(template, mockOrder);
+    expect(result).toBe('Hi John Doe, your order #1001 is ready.');
+  });
 });
