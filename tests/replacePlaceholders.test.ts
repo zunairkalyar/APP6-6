@@ -24,3 +24,4 @@ test('replacePlaceholders substitutes values', () => {
   const result = replacePlaceholders(template, mockOrder);
   assert.equal(result, 'Hi John Doe, your order #1001 is ready.');
 });
+
