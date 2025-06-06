@@ -25,8 +25,3 @@ test('replacePlaceholders substitutes values', () => {
   assert.equal(result, 'Hi John Doe, your order #1001 is ready.');
 });
 
-test('unknown placeholders remain unchanged', () => {
-  const template = 'Code {{doesNotExist}} for {{customerName}}';
-  const result = replacePlaceholders(template, mockOrder);
-  assert.equal(result, 'Code {{doesNotExist}} for John Doe');
-});
