@@ -16,11 +16,12 @@ const useGemini = (): UseGeminiReturn => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
+  // GEMINI_API_KEY from the environment is exposed as process.env.API_KEY via Vite
   const apiKey = typeof process !== 'undefined' && process.env && process.env.API_KEY ? process.env.API_KEY : null;
   
   const getAiInstance = useCallback(() => {
     if (!apiKey) {
-      console.error("Gemini API key is missing. Please ensure process.env.API_KEY is set.");
+      console.error("Gemini API key is missing. Please ensure the GEMINI_API_KEY environment variable is set.");
       setError("Gemini API key is not configured. AI features will not work.");
       return null;
     }
