@@ -21,6 +21,24 @@ This contains everything you need to run your app locally.
 4. Run tests:
    `npx tsx tests/replacePlaceholders.test.ts`
 
+## Debugging Build Issues
+
+If you encounter runtime errors in the production bundle, rebuild with source maps to trace the problem back to the original TypeScript files:
+
+```bash
+npm run build
+```
+
+The build output is written to `dist/` and includes `.map` files because `sourcemap: true` is set in `vite.config.ts`. Open the app in your browser and use DevTools to inspect the stack trace. The source maps let you view the exact location in your source code where the error originated.
+
+Also verify your environment variables are defined before building:
+
+```env
+GEMINI_API_KEY=<your key>
+```
+
+For the server integration, ensure `server/.env` contains `WOO_URL`, `WOO_CONSUMER_KEY`, and `WOO_CONSUMER_SECRET`.
+
 ## WooCommerce Integration
 
 A small Express server is included to talk to the WooCommerce REST API. Configure your credentials in `server/.env` (see `server/.env.example`).
