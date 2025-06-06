@@ -3,8 +3,7 @@ export enum TabKey {
   WooCommerceConfig = 'wooCommerceConfig',
   PushflowConfig = 'pushflowConfig',
   Orders = 'orders',
-  MessageTemplates = 'messageTemplates',
-  AiSettings = 'aiSettings', // Added for AI configuration
+  MessageTemplates = 'messageTemplates'
 }
 
 export interface ShopifyConfig {
@@ -87,34 +86,3 @@ export interface ToastMessage {
 // Utility type for class names
 export type ClassValue = string | null | undefined | Record<string, boolean> | ClassValue[];
 
-// AI Specific Types
-export interface BrandVoiceConfig {
-  description: string;
-}
-
-export interface AiGeneratedTemplate {
-  subject: string;
-  body: string;
-}
-
-export enum AiToneStyle {
-  Friendly = 'Friendly',
-  Formal = 'Formal',
-  Empathetic = 'Empathetic',
-  Urgent = 'Urgent',
-  Playful = 'Playful',
-  Concise = 'More Concise',
-  Detailed = 'More Detailed',
-  ActionOriented = 'Action-Oriented',
-}
-
-export interface AiCritique {
-    score: string; // e.g., "Good", "Fair", "Needs Improvement"
-    suggestions: string[];
-}
-
-export interface AiChatMessage {
-  role: 'user' | 'model';
-  text: string;
-  timestamp: number;
-}

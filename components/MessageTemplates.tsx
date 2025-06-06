@@ -1,17 +1,16 @@
 import React from 'react';
 import useMessageTemplates from '../hooks/useMessageTemplates';
-import { OrderStatus, MessageTemplate, BrandVoiceConfig } from '../types';
-import { ORDER_STATUS_OPTIONS, DEFAULT_MESSAGE_TEMPLATES, DEFAULT_BRAND_VOICE_CONFIG } from '../constants';
+import { OrderStatus, MessageTemplate } from '../types';
+import { ORDER_STATUS_OPTIONS, DEFAULT_MESSAGE_TEMPLATES } from '../constants';
 import TemplateEditor from './TemplateEditor';
 import Alert from './ui/Alert';
 import Button from './ui/Button';
-import useLocalStorage from '../hooks/useLocalStorage'; // To get brand voice
+
 
 interface MessageTemplatesManagerProps {}
 
 const MessageTemplatesManager: React.FC<MessageTemplatesManagerProps> = () => {
   const { templates, updateTemplate, setTemplates } = useMessageTemplates();
-  const [brandVoiceConfig] = useLocalStorage<BrandVoiceConfig>('brandVoiceConfig', DEFAULT_BRAND_VOICE_CONFIG);
 
 
   const handleSaveTemplate = (status: OrderStatus, data: MessageTemplate) => {
@@ -61,7 +60,6 @@ const MessageTemplatesManager: React.FC<MessageTemplatesManagerProps> = () => {
             orderStatusLabel={label}
             onSave={handleSaveTemplate}
             onReset={handleResetTemplate}
-            brandVoice={brandVoiceConfig.description} // Pass brand voice
           />
         );
       })}

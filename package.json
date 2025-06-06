@@ -11,7 +11,6 @@
     "start": "node server/woocommerce.js"
   },
   "dependencies": {
-    "@google/genai": "^1.4.0",
     "@woocommerce/woocommerce-rest-api": "^1.0.1",
     "body-parser": "^1.20.2",
     "dotenv": "^16.4.5",

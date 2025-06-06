@@ -1,4 +1,4 @@
-# Run and deploy your AI Studio app
+# Run and deploy your web app
 
 This contains everything you need to run your app locally.
 
@@ -9,16 +9,9 @@ This contains everything you need to run your app locally.
 
 1. Install dependencies:
    `npm install`
-2. Create an `.env.local` file with your Gemini API key:
-
-   ```env
-   GEMINI_API_KEY=<your key>
-   ```
-
-   During development Vite maps `GEMINI_API_KEY` to `process.env.API_KEY` so it can be accessed in the code.
-3. Run the app:
+2. Run the app:
    `npm run dev`
-4. Run tests:
+3. Run tests:
    `npx tsx tests/replacePlaceholders.test.ts`
 
 ## WooCommerce Integration
