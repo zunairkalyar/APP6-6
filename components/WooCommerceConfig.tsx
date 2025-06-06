@@ -50,15 +50,15 @@ const WooCommerceConfig: React.FC<WooCommerceConfigFormProps> = () => {
     if(wooCommerceError) clearError(); // Clear general hook errors
     if(testConnectionError) clearTestConnectionError(); // Clear previous test connection errors
 
-    const currentFormData = watch(); // Get current form values
-    
-    const success = await testWooCommerceConnection(currentFormData);
+    const currentFormData = watch();
+
+    setConfig(currentFormData);
+    const success = await testWooCommerceConnection();
 
     if (success) {
-      setTestResult({ type: 'success', message: 'WooCommerce connection successful! (Simulated)' });
+      setTestResult({ type: 'success', message: 'WooCommerce connection successful!' });
     } else {
-      // Error message is taken from the hook's testConnectionError state
-      setTestResult({ type: 'danger', message: `WooCommerce connection failed: ${testConnectionError || 'Unknown error'} (Simulated)` });
+      setTestResult({ type: 'danger', message: `WooCommerce connection failed: ${testConnectionError || 'Unknown error'}` });
     }
   };
   
