@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Store Connect - AI Enhanced</title>
+  <title>Store Connect</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -59,12 +59,6 @@
     ::-webkit-scrollbar-thumb:hover {
       background: theme('colors.primary.dark');
     }
-    .fab {
-      position: fixed;
-      bottom: 2rem;
-      right: 2rem;
-      z-index: 50; /* Ensure it's above other content but below modals if any */
-    }
   </style>
 <script type="importmap">
 {
@@ -72,16 +66,9 @@
     "react": "https://esm.sh/react@^19.1.0",
     "react/": "https://esm.sh/react@^19.1.0/",
     "react-hook-form": "https://esm.sh/react-hook-form@^7.57.0",
-    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
-    "@google/genai": "https://esm.sh/@google/genai@^1.4.0"
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/"
   }
 }
-</script>
-<script>
-  // IMPORTANT: Replace "YOUR_GEMINI_API_KEY_HERE" with your actual Gemini API Key.
-  // This is a placeholder for local development. In a production environment,
-  // API keys should be managed securely, e.g., via environment variables on a server.
-  window.process = { env: { API_KEY: "YOUR_GEMINI_API_KEY_HERE" } };
 </script>
 </head>
 <body>

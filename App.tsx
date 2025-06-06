@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { TabKey, Order, GeneratedMessage, BrandVoiceConfig } from './types'; // Removed ShopifyConfig, PushflowConfig, WooCommerceConfig as they are not directly used here
-import { APP_TABS, APP_NAME, DEFAULT_BRAND_VOICE_CONFIG } from './constants';
+import { TabKey, Order, GeneratedMessage } from './types';
+import { APP_TABS, APP_NAME } from './constants';
 import TabsNav from './components/ui/TabsNav';
 import ShopifyConfigComponent from './components/ShopifyConfig';
 import WooCommerceConfigComponent from './components/WooCommerceConfig';
@@ -8,13 +8,11 @@ import PushflowConfigComponent from './components/PushflowConfig';
 import OrderListComponent from './components/OrderList';
 import MessageTemplatesManager from './components/MessageTemplates';
 import MessagePreviewModal from './components/MessagePreviewModal';
-import AiSettingsComponent from './components/AiSettings'; // Added
-import AiHelpChat from './components/AiHelpChat'; // Added
+
 import useShopify from './hooks/useShopify';
 import useWooCommerce from './hooks/useWooCommerce';
 import usePushflow from './hooks/usePushflow';
 import useMessageTemplates from './hooks/useMessageTemplates';
-import useLocalStorage from './hooks/useLocalStorage'; // Added
 import useToasts, { Toaster } from './hooks/useToasts'; // Added Toaster
 import { cn } from './lib/utils';
 import Button from './components/ui/Button';
@@ -25,15 +23,13 @@ const WooIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBo
 const SmsIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M8.625 9.75a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 01.778-.332 48.294 48.294 0 005.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" /></svg>;
 const ListIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" /></svg>;
 const EnvelopeIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" /></svg>;
-const CogIcon = () => <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-1.003 1.11-.962a8.25 8.25 0 014.594 4.593c.04.55-.422 1.02-.962 1.11m-4.594 4.593c-.09.542-.56 1.003-1.11.962a8.25 8.25 0 00-4.594-4.593c-.04-.55.422-1.02.962-1.11M14 9a3 3 0 11-6 0 3 3 0 016 0zm-9.594-4.593c.09-.542.56-1.003 1.11-.962a8.25 8.25 0 014.594 4.593c.04.55-.422 1.02-.962 1.11m-4.594 4.593c-.09.542-.56 1.003-1.11.962a8.25 8.25 0 00-4.594-4.593c-.04-.55.422-1.02.962-1.11M16.5 10.5M16.5 13.5M16.5 7.5" /></svg>; // Simple Cog for AI Settings
 
 const TAB_ICONS: Record<TabKey, React.ReactNode> = {
   [TabKey.ShopifyConfig]: <StoreIcon />,
   [TabKey.WooCommerceConfig]: <WooIcon />,
   [TabKey.PushflowConfig]: <SmsIcon />,
   [TabKey.Orders]: <ListIcon />,
-  [TabKey.MessageTemplates]: <EnvelopeIcon />,
-  [TabKey.AiSettings]: <CogIcon />, // Added
+  [TabKey.MessageTemplates]: <EnvelopeIcon />
 };
 
 type ActiveDisplayPlatform = 'shopify' | 'woocommerce';
@@ -47,7 +43,6 @@ const App: React.FC = () => {
   const pushflow = usePushflow();
   const messageTemplates = useMessageTemplates();
   const { toasts, removeToast, addToast } = useToasts(); // Added addToast
-  const [brandVoiceConfig] = useLocalStorage<BrandVoiceConfig>('brandVoiceConfig', DEFAULT_BRAND_VOICE_CONFIG); // To pass to components
 
 
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
@@ -120,8 +115,6 @@ const App: React.FC = () => {
         return <WooCommerceConfigComponent />;
       case TabKey.PushflowConfig:
         return <PushflowConfigComponent />;
-      case TabKey.AiSettings: // Added
-        return <AiSettingsComponent />;
       case TabKey.Orders:
         const platformHooks = { shopify: shopify, woocommerce: wooCommerce };
         const currentPlatformHook = platformHooks[activeDisplayPlatform];
@@ -137,7 +130,7 @@ const App: React.FC = () => {
                     onSendUpdate={handleShowMessagePreview}
                 />;
       case TabKey.MessageTemplates:
-        return <MessageTemplatesManager />; // brandVoice will be read from localStorage inside
+        return <MessageTemplatesManager />;
       default:
         return <p>Select a tab</p>;
     }
@@ -203,10 +196,8 @@ const App: React.FC = () => {
         </div>
       </main>
       
-      <AiHelpChat /> {/* Added AI Help Chat FAB */}
-
       <footer className="text-center py-4 mt-8 text-sm text-gray-500">
-        &copy; {new Date().getFullYear()} {APP_NAME}. AI Features Powered by Google Gemini.
+        &copy; {new Date().getFullYear()} {APP_NAME}.
       </footer>
 
       <MessagePreviewModal

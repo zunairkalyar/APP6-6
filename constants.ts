@@ -1,4 +1,4 @@
-import { TabKey, OrderStatus, ShopifyConfig, PushflowConfig, MessageTemplates, WooCommerceConfig, BrandVoiceConfig } from './types';
+import { TabKey, OrderStatus, ShopifyConfig, PushflowConfig, MessageTemplates, WooCommerceConfig } from './types';
 
 export const APP_NAME = "Store Connect";
 
@@ -6,7 +6,6 @@ export const APP_TABS: { key: TabKey; label: string; icon?: React.ReactNode }[] 
   { key: TabKey.ShopifyConfig, label: 'Shopify' },
   { key: TabKey.WooCommerceConfig, label: 'WooCommerce' },
   { key: TabKey.PushflowConfig, label: 'Pushflow SMS' },
-  { key: TabKey.AiSettings, label: 'AI Settings' }, // Added
   { key: TabKey.Orders, label: 'Orders' },
   { key: TabKey.MessageTemplates, label: 'Templates' },
 ];
@@ -28,9 +27,6 @@ export const DEFAULT_PUSHFLOW_CONFIG: PushflowConfig = {
   defaultPhoneNumber: '',
 };
 
-export const DEFAULT_BRAND_VOICE_CONFIG: BrandVoiceConfig = { // Added
-  description: "Our brand is friendly, helpful, and professional. We value clear and concise communication. We want our customers to feel supported and appreciated.",
-};
 
 export const ORDER_STATUS_OPTIONS: { value: OrderStatus; label: string }[] = [
   { value: OrderStatus.Pending, label: 'Pending' },
@@ -107,20 +103,7 @@ Object.values(OrderStatus).forEach(status => {
 });
 
 export const MOCK_ORDERS_COUNT = 15;
-
-// AI Constants
-export const GEMINI_MODEL_TEXT = 'gemini-2.5-flash-preview-04-17'; // General Text Tasks
-
-// System Instructions for AI
-export const AI_SYSTEM_INSTRUCTION_ECOMMERCE_COPYWRITER = "You are an expert e-commerce copywriter. Your goal is to draft clear, concise, and engaging customer-facing messages. Respond in JSON format.";
-export const AI_SYSTEM_INSTRUCTION_TONE_ADJUSTER = "You are an expert copy editor. Rewrite the provided text according to the specified tone/style. Maintain the core message and placeholders. Respond in JSON format.";
-export const AI_SYSTEM_INSTRUCTION_CRITIQUE_MESSAGE = "You are an e-commerce communication specialist. Analyze the provided customer message for clarity, effectiveness, and tone. Provide a qualitative score and actionable suggestions. Respond in JSON format.";
-export const AI_SYSTEM_INSTRUCTION_HELP_ASSISTANT = `You are Store Connect AI, a friendly and helpful assistant for the Store Connect application. 
-Store Connect helps users manage their Shopify and WooCommerce stores, integrate with Pushflow SMS, manage orders, and customize message templates. 
-It now features AI tools for generating templates, adjusting tone, and critiquing messages. 
-Answer questions about these features, e-commerce best practices, or general app usage. Be concise and helpful.`;
-
-export const AI_PLACEHOLDER_OPTIONS = [
+export const PLACEHOLDER_OPTIONS = [
     { placeholder: "{{orderNumber}}", description: "Order Number (e.g., #1001)" },
     { placeholder: "{{customerName}}", description: "Customer's Full Name" },
     { placeholder: "{{customerEmail}}", description: "Customer's Email Address" },
