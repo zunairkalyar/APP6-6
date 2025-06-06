@@ -7,16 +7,22 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "vitest"
+    "test": "vitest",
+    "start": "node server/woocommerce.js"
   },
   "dependencies": {
+    "@google/genai": "^1.4.0",
+    "@woocommerce/woocommerce-rest-api": "^1.0.1",
+    "body-parser": "^1.20.2",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
     "react": "^19.1.0",
-    "react-hook-form": "^7.57.0",
     "react-dom": "^19.1.0",
-    "@google/genai": "^1.4.0"
+    "react-hook-form": "^7.57.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
+    "tsx": "^4.19.4",
     "typescript": "~5.7.2",
     "vite": "^6.2.0",
     "vitest": "^3.2.2"

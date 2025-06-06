@@ -1,50 +1,38 @@
 import { useState, useCallback, useEffect } from 'react';
 import useLocalStorage from './useLocalStorage';
-import { WooCommerceConfig, Order, OrderStatus, OrderItem } from '../types';
-import { DEFAULT_WOOCOMMERCE_CONFIG, MOCK_ORDERS_COUNT, ORDER_STATUS_OPTIONS } from '../constants';
+import { WooCommerceConfig, Order, OrderStatus } from '../types';
+import { DEFAULT_WOOCOMMERCE_CONFIG } from '../constants';
 
-// Mock data generation for WooCommerce
-const generateMockWooOrderItem = (idx: number): OrderItem => ({
-  id: `item-woo-${idx}-${Date.now()}`,
-  name: `Woo Product ${String.fromCharCode(70 + (idx % 20))}`, // Product F, Product G, ...
-  quantity: Math.floor(Math.random() * 2) + 1,
-  price: parseFloat((Math.random() * 70 + 10).toFixed(2)),
+// Map WooCommerce order object to internal Order type
+const mapWooOrder = (woo: any): Order => ({
+  id: String(woo.id),
+  orderNumber: woo.number,
+  status: woo.status as OrderStatus,
+  customerName: `${woo.billing.first_name} ${woo.billing.last_name}`.trim(),
+  customerEmail: woo.billing.email,
+  orderDate: woo.date_created,
+  items: (woo.line_items || []).map((i: any) => ({
+    id: String(i.id),
+    name: i.name,
+    quantity: i.quantity,
+    price: parseFloat(i.price ?? i.subtotal) || 0,
+  })),
+  totalAmount: parseFloat(woo.total),
+  shippingAddress: `${woo.shipping.address_1} ${woo.shipping.address_2} ${woo.shipping.city} ${woo.shipping.state} ${woo.shipping.postcode} ${woo.shipping.country}`.trim(),
+  billingAddress: `${woo.billing.address_1} ${woo.billing.address_2} ${woo.billing.city} ${woo.billing.state} ${woo.billing.postcode} ${woo.billing.country}`.trim(),
+  paymentMethod: woo.payment_method_title,
+  currency: woo.currency,
+  platform: 'woocommerce',
 });
 
-const generateMockWooOrder = (id: number): Order => {
-  const items = Array.from({ length: Math.floor(Math.random() * 3) + 1 }, (_, i) => generateMockWooOrderItem(i));
-  const totalAmount = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  
-  const statuses = ORDER_STATUS_OPTIONS.map(opt => opt.value);
-  const randomStatusKey = statuses[Math.floor(Math.random() * statuses.length)];
-  
-  const orderDate = new Date(Date.now() - Math.floor(Math.random() * 90) * 24 * 60 * 60 * 1000);
-
-  const customerSegments: Array<'VIP' | 'New' | 'Regular'> = ['VIP', 'New', 'Regular'];
-  const randomSegment = customerSegments[Math.floor(Math.random() * customerSegments.length)];
-  const isRepeat = Math.random() > 0.4; // Slightly different probability
-
-  return {
-    id: `woo-order-${2000 + id}-${Date.now()}`, 
-    orderNumber: `${2000 + id}`, 
-    status: randomStatusKey,
-    customerName: `Woo Customer ${String.fromCharCode(75 + (id % 10))} ${String.fromCharCode(107 + (id % 10))}`,
-    customerEmail: `woo.customer${id}@example.net`,
-    orderDate: orderDate.toISOString(),
-    items,
-    totalAmount: parseFloat(totalAmount.toFixed(2)),
-    shippingAddress: id % 2 === 0 ? `${400 + id} Woo Avenue, Anycity, USA` : `${500 + id} Woo Street, Wooville, USA`, // Vary addresses
-    billingAddress: `${500 + id} Woo Street, Wooville, USA`,
-    paymentMethod: 'Stripe (WooCommerce)', 
-    currency: 'USD',
-    platform: 'woocommerce',
-    isRepeatCustomer: isRepeat,
-    customerSegment: randomSegment,
-  };
-};
+type StoredConfig = Omit<WooCommerceConfig, 'consumerSecret'>;
 
 const useWooCommerce = () => {
-  const [config, setConfig] = useLocalStorage<WooCommerceConfig>('wooCommerceConfig', DEFAULT_WOOCOMMERCE_CONFIG);
+  const [config, setStoredConfig] = useLocalStorage<StoredConfig>('wooCommerceConfig', {
+    siteUrl: DEFAULT_WOOCOMMERCE_CONFIG.siteUrl,
+    consumerKey: DEFAULT_WOOCOMMERCE_CONFIG.consumerKey,
+  });
+  const [consumerSecret, setConsumerSecret] = useState('');
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -54,49 +42,50 @@ const useWooCommerce = () => {
   const [testConnectionError, setTestConnectionError] = useState<string | null>(null);
 
   useEffect(() => {
-    setIsConfigured(!!(config.siteUrl && config.consumerKey && config.consumerSecret));
-  }, [config]);
+    setIsConfigured(!!(config.siteUrl && config.consumerKey && consumerSecret));
+  }, [config, consumerSecret]);
 
   const fetchOrders = useCallback(async () => {
     if (!isConfigured) {
-      setError("WooCommerce is not configured. Please provide Site URL, Consumer Key, and Consumer Secret.");
+      setError('WooCommerce is not configured.');
       setOrders([]);
       return;
     }
     setIsLoading(true);
     setError(null);
-    await new Promise(resolve => setTimeout(resolve, 1100)); 
     try {
-      const mockOrders = Array.from({ length: MOCK_ORDERS_COUNT - 5 }, (_, i) => generateMockWooOrder(i + 1)); 
-      setOrders(mockOrders);
-    } catch (e) {
-      console.error("Failed to fetch WooCommerce orders:", e);
-      setError("Failed to fetch WooCommerce orders. Check console for details.");
+      const resp = await fetch('/api/orders');
+      if (!resp.ok) throw new Error(`Status ${resp.status}`);
+      const data = await resp.json();
+      setOrders(data.map((o: any) => mapWooOrder(o)));
+    } catch (e: any) {
+      console.error('Failed to fetch WooCommerce orders:', e);
+      setError('Failed to fetch WooCommerce orders.');
       setOrders([]);
     } finally {
       setIsLoading(false);
     }
-  }, [isConfigured, config.siteUrl, config.consumerKey, config.consumerSecret]);
+  }, [isConfigured]);
 
   const updateOrderStatus = useCallback(async (orderId: string, newStatus: OrderStatus): Promise<boolean> => {
     if (!isConfigured) {
-      setError("WooCommerce is not configured. Cannot update order status.");
+      setError('WooCommerce is not configured.');
       return false;
     }
     setIsLoading(true);
     setError(null);
-    await new Promise(resolve => setTimeout(resolve, 600)); 
     try {
-      console.log(`Updating WooCommerce order ${orderId} to status ${newStatus}`);
-      setOrders(prevOrders =>
-        prevOrders.map(order =>
-          order.id === orderId ? { ...order, status: newStatus } : order
-        )
-      );
+      const resp = await fetch(`/api/orders/${orderId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      });
+      if (!resp.ok) throw new Error(`Status ${resp.status}`);
+      setOrders(prev => prev.map(o => (o.id === orderId ? { ...o, status: newStatus } : o)));
       return true;
     } catch (e) {
-      console.error("Failed to update WooCommerce order status:", e);
-      setError("Failed to update WooCommerce order status. Check console for details.");
+      console.error('Failed to update WooCommerce order status:', e);
+      setError('Failed to update WooCommerce order status.');
       return false;
     } finally {
       setIsLoading(false);
@@ -107,31 +96,30 @@ const useWooCommerce = () => {
     return orders.find(order => order.id === orderId);
   }, [orders]);
 
-  const testWooCommerceConnection = useCallback(async (testConfig: WooCommerceConfig): Promise<boolean> => {
+  const testWooCommerceConnection = useCallback(async (): Promise<boolean> => {
     setIsTestingConnection(true);
     setTestConnectionError(null);
-    await new Promise(resolve => setTimeout(resolve, 1300));
     try {
-      if (!testConfig.siteUrl || !testConfig.consumerKey || !testConfig.consumerSecret) {
-        throw new Error("Site URL, Consumer Key, and Consumer Secret are required for testing.");
-      }
-      if (testConfig.consumerSecret.toLowerCase() === 'fail_secret') {
-          throw new Error("Simulated Consumer Secret resulted in an error.");
-      }
-      console.log("Test connection with WooCommerce config:", testConfig, "was successful (simulated).");
+      const resp = await fetch('/api/test-connection');
+      if (!resp.ok) throw new Error(`Status ${resp.status}`);
       return true;
     } catch (e: any) {
-      console.error("WooCommerce test connection failed:", e);
-      setTestConnectionError(e.message || "An unknown error occurred during WooCommerce connection test.");
+      console.error('WooCommerce test connection failed:', e);
+      setTestConnectionError(e.message || 'Unable to connect to WooCommerce.');
       return false;
     } finally {
       setIsTestingConnection(false);
     }
   }, []);
 
+  const saveConfig = (cfg: WooCommerceConfig) => {
+    setStoredConfig({ siteUrl: cfg.siteUrl, consumerKey: cfg.consumerKey });
+    if (cfg.consumerSecret) setConsumerSecret(cfg.consumerSecret);
+  };
+
   return {
-    config,
-    setConfig,
+    config: { ...config, consumerSecret },
+    setConfig: saveConfig,
     orders,
     fetchOrders,
     updateOrderStatus,
