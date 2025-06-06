@@ -1,0 +1,6 @@
+{
+  "name": "Shopify & Pushflow Manager",
+  "description": "A web application to manage Shopify store settings, Pushflow SMS integration, view orders, and customize message templates for order status updates. Provides a central dashboard for e-commerce operations and communication.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}
